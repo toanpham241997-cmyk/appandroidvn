@@ -1,63 +1,57 @@
-# AUJUNPEAK MONITOR · Android
+# AUJUNPEAK MONITOR V1.0.1 — Android & GitHub Actions FIX
 
-Ứng dụng **Android native bằng Kotlin + Jetpack Compose**: màn hình login key, dashboard dark-tech, biểu đồ sử dụng RAM/CPU, các công cụ hệ thống và tuỳ chỉnh màu sắc. Giao diện bằng tiếng Việt; **không yêu cầu quyền Internet**.
+Android **Kotlin + Jetpack Compose**, dark neon, login key, CPU (tiến trình app), RAM (toàn thiết bị), biểu đồ 60 mẫu, pin, lưu trữ, công cụ hệ thống.
 
-## 🗝 Key demo
+## Hướng dẫn build APK trực tiếp trên GitHub
 
-```text
+1. Tạo repository GitHub mới hoặc dùng repository cũ.
+2. **Giải nén ZIP và đưa NỘI DUNG bên trong vào THƯ MỤC GỐC** repository (không upload mỗi file `.zip`, không để lồng thêm `AujunpeakMonitor_Fixed_V1.0.1/`).
+3. Đảm bảo GitHub hiển thị `app/`, `.github/workflows/build-apk.yml`, `build.gradle.kts`, `settings.gradle.kts`, `gradle.properties`, `scripts/validate_project.py` ở đúng cấp.
+4. Commit lên nhánh `main` hoặc `master`. Tab **Actions → Build Android APK** tự chạy, hoặc bấm **Run workflow**.
+5. Khi dấu xanh, mở run → **Artifacts → AujunpeakMonitor-V1.0.1-debug-apk** → tải và giải nén để nhận **app-debug.apk**.
+
+**Quan trọng:** Khi cập nhật repository cũ, bạn phải thay file `.github/workflows/build-apk.yml` — **Re-run jobs trên commit cũ sẽ vẫn chạy workflow cũ**, không sửa lỗi. Hãy tạo commit mới / chạy workflow mới sau khi thay file.
+
+## Lỗi GitHub đã xử lý
+
+- Bỏ `android-actions/setup-android@v3` (action cũ có thể gọi package Android SDK `tools` đã bị loại bỏ và thất bại ngay ở bước Set up Android SDK).
+- Dùng `ubuntu-24.04` đã có Android SDK 35 và Android Build-tools 35.0.0; nếu thiếu mới gọi `sdkmanager` để cài **chỉ** các gói hỗ trợ.
+- Ghép bộ Android Gradle Plugin **8.9.2**, Gradle **8.11.1**, Kotlin Android/Compose compiler **2.2.21**, Java **17** và compileSdk/targetSdk **35**.
+- Có kiểm tra cấu hình + XML/key demo trước khi build; check APK khác 0 byte rồi mới upload Artifact. Lệnh Gradle dùng `--stacktrace` để hiển thị lỗi đầy đủ nếu CI vẫn thất bại.
+- Không cần Gradle Wrapper trên GitHub: `gradle/actions/setup-gradle@v4` cài Gradle 8.11.1.
+
+## Key demo
+
+```
 AUJUN-2026
 ```
 
-Chỉ là demo key **offline**. Mã kiểm tra SHA-256 nằm ở `app/src/main/java/com/aujunpeak/monitor/auth/KeyGate.kt`. Đăng nhập hợp lệ được lưu cục bộ bằng SharedPreferences. **Không dùng cơ chế này để bán key bản quyền**: bất kỳ kiểm tra offline nào cũng có thể bị giả mạo hoặc bỏ qua khi phân tích APK. Muốn triển khai key trả phí, cần một backend HTTPS để xác minh key, thời hạn, số thiết bị và cấp phiên làm việc.
+Key được xác minh bằng SHA-256 cục bộ. **Không phải hệ thống quản lý license thương mại** (có thể bị bypass khi reverse-engineer APK); muốn dùng key trả phí cần backend HTTPS xác thực.
 
-## 📱 Chức năng
+## Thông số và lưu ý
 
-- Login bằng key, hiển thị/ẩn key, ghi nhớ đăng nhập, đăng xuất.
-- Dashboard tối, gradient xanh/tím, hiệu ứng chuyển tab, nhịp LIVE, gauge RAM và đồ thị thật cập nhật theo thời gian.
-- **RAM toàn thiết bị**: đọc `ActivityManager.MemoryInfo`.
-- **CPU của riêng ứng dụng**: đọc `Process.getElapsedCpuTime`, quy đổi theo tổng số lõi. Đây **không phải CPU tổng toàn máy**; Android hạn chế số liệu CPU toàn máy cho app thông thường.
-- **Bộ nhớ trong**: dung lượng phân vùng dữ liệu theo `StatFs`.
-- **Pin**: phần trăm, tình trạng sạc và nhiệt độ cảm biến pin (nếu có).
-- Thông tin Android, model, số lõi CPU, uptime.
-- Đồ thị lưu **60 mẫu gần nhất** trong phiên, làm mới mỗi 1 / 2 / 3 giây.
-- Công cụ mở Cài đặt Android, quản lý bộ nhớ, cài đặt pin, thông tin ứng dụng.
-- Sao chép hoặc chia sẻ báo cáo hệ thống qua các ứng dụng khác.
-- Cấu hình 3 màu neon: Ice Blue, Neon Violet và Mint Pulse.
+- Android từ 8.0 (API 26), package `com.aujunpeak.monitor`.
+- Không yêu cầu quyền INTERNET, không thu thập/gửi dữ liệu ra server.
+- RAM là RAM toàn thiết bị. CPU là CPU **của app**, quy đổi theo số lõi, không phải tải CPU toàn máy. Nhiệt độ pin không phải nhiệt độ CPU.
+- Hệ thống cập nhật theo lựa chọn 1/2/3 giây; tự dừng lấy mẫu khi đăng xuất.
+- APK đầu ra là **debug** được ký để thử nghiệm, không phải APK release đã ký để phân phối chính thức.
 
-## 🚀 Build APK trực tiếp trên GitHub (không cần Android Studio)
+## Kiểm tra cục bộ
 
-1. Tạo repository mới trên GitHub, ví dụ `AujunpeakMonitor`.
-2. Giải nén ZIP này và **đẩy toàn bộ nội dung thư mục `AujunpeakMonitor` lên gốc repository**. Cần giữ nguyên đường dẫn `.github/workflows/build-apk.yml`.
-3. Khi push vào `main` hoặc `master`, workflow **Build Android APK** tự chạy. Cũng có thể vào tab **Actions → Build Android APK → Run workflow**.
-4. Mở lần chạy thành công, kéo xuống mục **Artifacts**, tải `AujunpeakMonitor-debug-apk`.
-5. Giải nén artifact để nhận **`app-debug.apk`**, chuyển lên điện thoại Android và cài đặt.
-
-Nếu cần đẩy mã qua dòng lệnh (thay `USERNAME`):
+Từ thư mục gốc:
 
 ```bash
-git init
-git add .
-git commit -m "Initial Aujunpeak Monitor app"
-git branch -M main
-git remote add origin https://github.com/USERNAME/AujunpeakMonitor.git
-git push -u origin main
+python3 scripts/validate_project.py
 ```
 
-**Lưu ý:** Artifact APK là **debug APK đã ký bằng debug key**, cài thử được, không phải bản phát hành ký chính thức để đăng Play Store. Build lần đầu cần tải Gradle, Android SDK và dependencies trên GitHub Actions.
+Nếu có Android SDK và Gradle 8.11.1:
 
-## 🧰 Yêu cầu kỹ thuật
+```bash
+gradle :app:assembleDebug --no-daemon --stacktrace
+```
 
-- Android 8.0 trở lên (minSdk 26).
-- targetSdk 35 / compileSdk 35.
-- Android Gradle Plugin 8.9.2, Gradle 8.11.1, Kotlin 2.3.21, Jetpack Compose.
-- Workflow dùng `ubuntu-latest`, Java 17, Android SDK 35.
+### Những gì đã và chưa được kiểm chứng
 
-## ⚙️ Mở trong Android Studio
-
-Chọn **Open → AujunpeakMonitor**, chọn JDK 17 và Gradle 8.11.1. Dự án cố ý không chứa `gradlew`/wrapper jar; GitHub Actions cài Gradle phiên bản ghim sẵn. Nếu Android Studio yêu cầu wrapper, có thể tạo wrapper với Gradle 8.11.1 hoặc chỉ định Gradle cài trên máy.
-
-## 🔏 Quyền riêng tư và giới hạn
-
-Không có `INTERNET` permission và không gửi dữ liệu đi đâu. Clipboard/Share chỉ thao tác khi người dùng chạm nút. Dữ liệu cảm biến tùy thiết bị. Con số RAM là RAM **toàn thiết bị**, CPU là **tiến trình ứng dụng**, nhiệt độ là **pin** (không phải nhiệt độ CPU), lưu trữ là **phân vùng data**.
-
-**Phiên bản này là mã nguồn có quy trình build tự động; không kèm APK build sẵn.**
+- Đã kiểm tra tĩnh: tính nhất quán cấu hình workflow/Gradle, cấu trúc module, manifest + XML và SHA-256 key.
+- Đã biên dịch & chạy kiểm thử JVM cho class `KeyGate.kt` với 4 test case, đều đạt.
+- **Chưa build APK Android trong môi trường tạo ZIP này**, do không có Android SDK và không có kết nối tải dependencies từ Google/Maven. Kết quả thực tế cần được xác nhận bằng GitHub Actions; nếu lỗi bước Gradle, mở log `Build Android debug APK` và gửi khoảng 30 dòng cuối của lỗi.

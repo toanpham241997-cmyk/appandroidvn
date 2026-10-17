@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aujunpeak.monitor.monitor.SystemSnapshot
 import com.aujunpeak.monitor.monitor.readableSize
-import com.aujunpeak.monitor.monitor.readableUptime
 import java.util.Locale
 
 private val Navy = Color(0xFF070C17)
@@ -143,7 +142,7 @@ private fun LoginScreen(accent: Color, onLogin: (String) -> Boolean) {
             Spacer(Modifier.width(10.dp))
             Text("AUJUNPEAK", fontSize = 14.sp, letterSpacing = 3.sp, fontWeight = FontWeight.ExtraBold, color = PrimaryText)
             Spacer(Modifier.weight(1f))
-            TinyLabel("v1.0", accent)
+            TinyLabel("v1.0.1", accent)
         }
         Spacer(Modifier.height(55.dp))
         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(142.dp)) {
@@ -495,7 +494,7 @@ private fun PreferencesScreen(
         Spacer(Modifier.height(12.dp))
         InfoPair("Tên ứng dụng", "Aujunpeak Monitor")
         Spacer(Modifier.height(10.dp))
-        InfoPair("Phiên bản", "1.0.0")
+        InfoPair("Phiên bản", "1.0.1")
         Spacer(Modifier.height(10.dp))
         InfoPair("Key", "Demo offline")
         Spacer(Modifier.height(10.dp))
